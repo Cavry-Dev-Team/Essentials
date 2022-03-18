@@ -1,0 +1,6 @@
+prefix: "&e&lNECRO ESSENTIALS &a/ "
+rightclick-invsee: true
+use-confirmation: false
+chat-lock: false
+old-invsee: false
+discouraged: false

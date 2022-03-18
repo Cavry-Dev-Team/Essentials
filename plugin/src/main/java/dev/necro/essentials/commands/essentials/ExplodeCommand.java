@@ -1,0 +1,62 @@
+package dev.necro.essentials.commands.essentials;
+
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandDescription;
+import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.Flag;
+import dev.necro.essentials.commands.api.CommandClass;
+import dev.necro.essentials.utils.Utils;
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class ExplodeCommand extends CommandClass {
+
+    @CommandMethod("explode [target] [power] [damage]")
+    @CommandDescription("Spawns an explosion on where you're looking at or at other player")
+    public void explodeCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "target", description = "The target player", defaultValue = "self", suggestions = "players") String targetName,
+            final @NonNull @Argument(value = "power", description = "The explosion power", defaultValue = "4") Float power,
+            final @NonNull @Argument(value = "damage", description = "Should the explosion damage blocks", defaultValue = "true") Boolean damage,
+            final @Nullable @Flag(value = "silent", aliases = "s", description = "Should the target not be notified?") Boolean silent
+    ) {
+        if (!Utils.checkPermission(sender, "explode")) {
+            return;
+        }
+
+        Set<Location> locations = new HashSet<>();
+        TargetsCallback targets = new TargetsCallback();
+        if (targetName.equals("self") && sender instanceof Player) {
+            locations.add(((Player) sender).getTargetBlock(null, 120).getLocation());
+        } else {
+            targets = this.getTargets(sender, targetName);
+        }
+
+        if (!targets.isEmpty()) {
+            locations.addAll(targets.stream().map(Player::getLocation).collect(Collectors.toList()));
+            if (silent == null || !silent) {
+                targets.forEach(target -> target.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eYou have been exploded!"));
+            }
+        }
+
+        TargetsCallback finalTargets = targets;
+        plugin.getConfirmationManager().requestConfirmation(() -> {
+            locations.forEach(location -> location.getWorld().createExplosion(location, power, damage));
+
+            boolean others = !finalTargets.isEmpty() && finalTargets.size() > 1;
+            if (others) {
+                sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eExploded §b" + finalTargets.size() + " §eplayers.");
+            } else if ((!(sender instanceof Player)) || (finalTargets.doesNotContain((Player) sender) && !targetName.equals("self"))) {
+                finalTargets.stream().findFirst().ifPresent(target -> sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eExploded §b" + target.getName() + "§e."));
+            }
+        }, this.canSkip("explode", targets, sender));
+    }
+
+}

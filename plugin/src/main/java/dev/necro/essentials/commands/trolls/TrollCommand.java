@@ -1,0 +1,57 @@
+package dev.necro.essentials.commands.trolls;
+
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandDescription;
+import cloud.commandframework.annotations.CommandMethod;
+import dev.necro.essentials.commands.api.CommandClass;
+import dev.necro.essentials.enums.TrollType;
+import dev.necro.essentials.enums.TrueFalseType;
+import dev.necro.essentials.utils.Utils;
+import org.bukkit.command.CommandSender;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class TrollCommand extends CommandClass {
+
+    @CommandMethod("necrotrolls|necrotroll|trolls|troll|lt check [target]")
+    @CommandDescription("Checks active trolls on target")
+    public void checkCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "target", description = "The target player", defaultValue = "self", suggestions = "players") String targetName
+    ) {
+        if (!Utils.checkPermission(sender, "trolls.check")) {
+            return;
+        }
+
+        TargetsCallback targets = this.getTargets(sender, targetName);
+        if (targets.notifyIfEmpty()) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cNo targets found!");
+            return;
+        }
+        if (targets.size() > 1) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cYou can only check one player at a time!");
+            return;
+        }
+
+        targets.stream().findFirst().ifPresent(target -> {
+            Map<String, String> activeTrolls = new HashMap<>();
+            for (TrollType trollType : TrollType.values()) {
+                activeTrolls.put(trollType.getDisplay(), Utils.colorizeTrueFalse(target.hasMetadata(trollType.getMetadataKey()), TrueFalseType.ON_OFF));
+            }
+
+            final int[] size = {activeTrolls.size()};
+            sender.sendMessage("§eActive trolls for §b" + target.getName() + "§e:");
+            activeTrolls.forEach((key, value) -> {
+                boolean last = (--size[0] < 1);
+                if (last) {
+                    sender.sendMessage("§8└─ §e" + key + ": " + value);
+                } else {
+                    sender.sendMessage("§8├─ §e" + key + ": " + value);
+                }
+            });
+        });
+    }
+
+}

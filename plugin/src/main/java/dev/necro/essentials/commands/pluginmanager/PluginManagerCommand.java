@@ -1,0 +1,280 @@
+package dev.necro.essentials.commands.pluginmanager;
+
+import cloud.commandframework.annotations.Argument;
+import cloud.commandframework.annotations.CommandDescription;
+import cloud.commandframework.annotations.CommandMethod;
+import cloud.commandframework.annotations.specifier.Greedy;
+import cloud.commandframework.annotations.suggestions.Suggestions;
+import cloud.commandframework.context.CommandContext;
+import com.google.common.base.Joiner;
+import dev.necro.essentials.commands.api.CommandClass;
+import dev.necro.essentials.enums.TrueFalseType;
+import dev.necro.essentials.utils.Utils;
+import dev.necro.essentials.utils.pluginmanager.PluginManagerUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class PluginManagerCommand extends CommandClass {
+
+    @CommandMethod("necroessentials pluginmanager|pm list")
+    @CommandDescription("Lists all loaded plugin")
+    public void listCommand(
+            final @NonNull CommandSender sender
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.list")) {
+            return;
+        }
+
+        List<PluginManagerUtils.PluginInfo> pluginInfos = Arrays.stream(Bukkit.getPluginManager().getPlugins())
+                .map(PluginManagerUtils::getPluginInfo)
+                .sorted(Comparator.comparing(PluginManagerUtils.PluginInfo::getRawName))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        final int[] size = {pluginInfos.size()};
+        sender.sendMessage("§ePlugins §b(" + size[0] + ")§e: ");
+        pluginInfos.forEach(it -> {
+            boolean last = (--size[0] < 1);
+            String message;
+            if (last) {
+                message = "§8└─ ";
+            } else {
+                message = "§8├─ ";
+            }
+
+            message += it.getName() + " §7(§6v§e" + it.getVersion() + "§7)";
+            sender.sendMessage(message);
+        });
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm info <pluginName>")
+    @CommandDescription("Gets the info of a plugin")
+    public void infoCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.info")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+
+        sender.sendMessage("§e" + pluginByName.getName() + " info:");
+        sender.sendMessage("§8├─ §eVersion: §a" + pluginByName.getDescription().getVersion());
+        sender.sendMessage("§8├─ §eAuthor(s): §a" + Joiner.on(", ").join(pluginByName.getDescription().getAuthors()));
+        sender.sendMessage("§8├─ §eState: " + Utils.colorizeTrueFalse(pluginByName.isEnabled(), TrueFalseType.ENABLED));
+        sender.sendMessage("§8├─ §eMain Class: §a" + pluginByName.getDescription().getMain());
+        sender.sendMessage("§8├─ §eDepends: §a" + Joiner.on(", ").join(pluginByName.getDescription().getDepend()));
+        sender.sendMessage("§8└─ §eSoft Depends: §a" + Joiner.on(", ").join(pluginByName.getDescription().getSoftDepend()));
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm load <pluginName>")
+    @CommandDescription("Loads a plugin")
+    public void loadCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.load")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName != null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin is already loaded!");
+            return;
+        }
+
+        boolean loaded = PluginManagerUtils.load(pluginName);
+        if (loaded) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully loaded §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed loading §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm unload <pluginName>")
+    @CommandDescription("Unloads a plugin")
+    public void unLoadCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.unload")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin is not loaded!");
+            return;
+        }
+
+        boolean loaded = PluginManagerUtils.unload(pluginByName);
+        if (loaded) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully unloaded §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed unloading §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm reload <pluginName>")
+    @CommandDescription("Reloads a plugin")
+    public void reloadCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.reload")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+
+        boolean reloaded = PluginManagerUtils.reload(pluginByName);
+        if (reloaded) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully reloaded §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed reloading §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm enable <pluginName>")
+    @CommandDescription("Enables a plugin")
+    public void enableCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.enable")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+        if (pluginByName.isEnabled()) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin is already enabled!");
+            return;
+        }
+
+        boolean enabled = PluginManagerUtils.enable(pluginByName);
+        if (enabled) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully enabled §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed enabling §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm disable <pluginName>")
+    @CommandDescription("Disables a plugin")
+    public void disableCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.disable")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+        if (!pluginByName.isEnabled()) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin is already disabled!");
+            return;
+        }
+
+        boolean disabled = PluginManagerUtils.disable(pluginByName);
+        if (disabled) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully disabled §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed disabling §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm restart <pluginName>")
+    @CommandDescription("Restarts a plugin")
+    public void restartCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.restart")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+
+        boolean restarted = PluginManagerUtils.restart(pluginByName);
+        if (restarted) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eSuccessfully restarted §b" + pluginName + "§e.");
+        } else {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cFailed restarting §l" + pluginName + "§c! §7§oCheck console for more details!");
+        }
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm usage|uses|help <pluginName>")
+    @CommandDescription("Gets the command usages of a plugin")
+    public void usageCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "pluginName", description = "The plugin name", suggestions = "plugins") @Greedy String pluginName
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.usage")) {
+            return;
+        }
+
+        Plugin pluginByName = PluginManagerUtils.getPluginByName(pluginName);
+        if (pluginByName == null) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cPlugin not found!");
+            return;
+        }
+
+        String usages = PluginManagerUtils.getUsages(pluginByName);
+        sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§eCommands: §a" + usages);
+    }
+
+    @CommandMethod("necroessentials pluginmanager|pm lookup <command>")
+    @CommandDescription("Looks up for the plugin of the command")
+    public void lookupCommand(
+            final @NonNull CommandSender sender,
+            final @NonNull @Argument(value = "command", description = "The command") @Greedy String command
+    ) {
+        if (!Utils.checkPermission(sender, "pluginmanager.lookup")) {
+            return;
+        }
+
+        List<String> pluginByCommands = PluginManagerUtils.findByCommand(command);
+        if (pluginByCommands.isEmpty()) {
+            sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§cNo plugins found!");
+            return;
+        }
+
+        sender.sendMessage(plugin.getMainConfigManager().getPrefix() + "§b" + command + " §eis registered to: §a" + Joiner.on(", ").join(pluginByCommands));
+    }
+
+    @Suggestions("plugins")
+    public List<String> plugins(CommandContext<CommandSender> context, String current) {
+        return Arrays.stream(Bukkit.getPluginManager().getPlugins())
+                .map(Plugin::getName)
+                .filter(it -> it.toLowerCase().startsWith(current.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+}
