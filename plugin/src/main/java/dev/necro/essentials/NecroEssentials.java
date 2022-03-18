@@ -278,7 +278,7 @@ public class NecroEssentials extends JavaPlugin {
      * Im bored...
      */
     private void sendStuffToConsoleLmao() {
-        String necroEssentials =
+        String iyh =
                 "\n" +
                         "§b  _   _                     _____                    _   _       _                     \n" +
                         "§b | \\ | | ___  ___ _ __ ___ | ____|___ ___  ___ _ __ | |_(_) __ _| |___                \n" +
@@ -290,7 +290,7 @@ public class NecroEssentials extends JavaPlugin {
                         "                  §aNecroEssentials §ev" + this.getDescription().getVersion() + " §eby §b" + Joiner.on(", ").join(this.getDescription().getAuthors()) + "\n" +
                         " ";
 
-        for (String s : necroEssentials.split("\n")) {
+        for (String s : iyh.split("\n")) {
             Bukkit.getConsoleSender().sendMessage(s);
         }
     }
