@@ -48,6 +48,8 @@ jar {
     from {
         configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 
 processResources {
