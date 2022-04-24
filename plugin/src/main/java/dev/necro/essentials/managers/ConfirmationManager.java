@@ -37,7 +37,7 @@ public class ConfirmationManager {
             warnings.forEach(player::sendMessage);
         }
 
-        player.sendMessage(plugin.getMainConfigManager().getPrefix() + "§ePlease type §b/less confirm §eto confirm your action.");
+        player.sendMessage(plugin.getMainConfigManager().getPrefix() + "§ePlease type §b/ness confirm §eto confirm your action.");
         this.confirmationMap.put(player, callable);
     }
 
