@@ -1,7 +1,9 @@
 package dev.necro.essentials.listeners;
 
 import dev.necro.essentials.NecroEssentials;
+import dev.necro.essentials.utils.Utils;
 import lombok.AllArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,13 +15,29 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class ConnectionListeners implements Listener {
 
     private final NecroEssentials plugin;
+    private final boolean flyOnJoin;
+
+    public ConnectionListeners(NecroEssentials plugin) {
+        this.plugin = plugin;
+        this.flyOnJoin = plugin.getMainConfig().getBoolean("fly-on-join");
+    }
 
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
         if (event.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
+            Player player = event.getPlayer();
             boolean canJoin = plugin.getWhitelistManager().canJoin(event.getPlayer());
             if (!canJoin) {
                 event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, plugin.getWhitelistManager().getDenyMessage());
+            }
+            if (flyOnJoin) {
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (player != null) {
+                        if (Utils.checkPermission(player, "fly.on-join", false, false, true, null)) {
+                            player.setAllowFlight(true);
+                        }
+                    }
+                }, 3L);
             }
         }
     }

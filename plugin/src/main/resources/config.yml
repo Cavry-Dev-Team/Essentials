@@ -1,6 +1,7 @@
 prefix: "&e&lNECRO ESSENTIALS &a/ "
-rightclick-invsee: true
-use-confirmation: false
+rightclick-invsee: false
+use-confirmation: true
 chat-lock: false
 old-invsee: false
 discouraged: false
+fly-on-join: true
