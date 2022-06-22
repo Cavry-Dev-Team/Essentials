@@ -28,9 +28,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
     compileOnly 'cloud.commandframework:cloud-paper:1.6.2'
-    compileOnly 'cloud.commandframework:cloud-core:1.6.2'
+    compileOnly 'cloud.commandframework:cloud-core:1.7.0'
     compileOnly 'cloud.commandframework:cloud-annotations:1.6.2'
-    compileOnly 'cloud.commandframework:cloud-minecraft-extras:1.6.2'
+    compileOnly 'cloud.commandframework:cloud-minecraft-extras:1.7.0'
     compileOnly "net.kyori:adventure-platform-bukkit:4.1.0"
     // compileOnly 'net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT'
 
