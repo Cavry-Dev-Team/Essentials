@@ -149,6 +149,9 @@ public class NecroEssentials extends JavaPlugin {
 
         DependencyHelper helper = new DependencyHelper(NecroEssentials.class.getClassLoader());
         File dir = new File("plugins/NecroEssentials/libs");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
         try {
             helper.download(dependencyMap, dir.toPath());
             helper.loadDir(dir.toPath(), false);
@@ -214,6 +217,9 @@ public class NecroEssentials extends JavaPlugin {
 
         DependencyHelper helper = new DependencyHelper(NecroEssentials.class.getClassLoader());
         File dir = new File("plugins/NecroEssentials/libs");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
         try {
             helper.download(dependencyMap, dir.toPath());
             helper.loadDir(dir.toPath(), true);
