@@ -28,6 +28,8 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Check Java version
+      run: java -version
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
@@ -36,6 +38,9 @@ jobs:
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
+    - name: Check which Java version is Gradle using
+      run: ./gradlew --version
+      
     - name: Build with Gradle Wrapper
       run: ./gradlew build
 
