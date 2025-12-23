@@ -50,6 +50,7 @@ public class NecroEssentialsCommand {
             e.printStackTrace();
         }
 
+        assert this.manager != null;
         this.builder = this.manager.commandBuilder("necroessentials", "necroessential", "essentials", "essential", "ess", "ness");
 
         // registers the custom help command
@@ -60,7 +61,7 @@ public class NecroEssentialsCommand {
                 this.manager
         );
 
-        if (this.manager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+        if (this.manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
             this.manager.registerAsynchronousCompletions();
         }
 
