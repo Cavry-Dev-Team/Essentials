@@ -112,6 +112,12 @@ public class DependencyManager {
         // Check if already loaded
         if (isClassLoaded("net.kyori.adventure.text.Component")) {
             logger.info("Adventure API already present, skipping download");
+            loadDependencies(
+                    Dependency.ADVENTURE_PLATFORM_API,
+                    Dependency.ADVENTURE_PLATFORM_BUKKIT,
+                    Dependency.ADVENTURE_PLATFORM_FACET,
+                    Dependency.GEANTYREF
+            );
             return;
         }
 
@@ -121,8 +127,8 @@ public class DependencyManager {
                 Dependency.ADVENTURE_PLATFORM_API,
                 Dependency.ADVENTURE_PLATFORM_BUKKIT,
                 Dependency.ADVENTURE_PLATFORM_FACET,
-                Dependency.EXAMINATION_API,
-                Dependency.GEANTYREF
+                Dependency.GEANTYREF,
+                Dependency.EXAMINATION_API
         );
     }
 
@@ -154,7 +160,7 @@ public class DependencyManager {
     private boolean tryBukkitPluginClassLoader(List<Path> files) {
         try {
             Class<?> pluginClassLoaderClass = Class.forName("org.bukkit.plugin.java.PluginClassLoader");
-            
+
             if (!pluginClassLoaderClass.isInstance(pluginClassLoader)) {
                 return false;
             }
