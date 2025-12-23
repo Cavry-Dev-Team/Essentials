@@ -1,4 +1,4 @@
-package dev.necro.essentials.dependency;
+package dev.necro.essentials.dependencies.deprecated;
 
 import java.io.File;
 import java.io.FileNotFoundException;

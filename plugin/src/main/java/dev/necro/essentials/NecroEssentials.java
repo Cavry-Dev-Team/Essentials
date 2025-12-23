@@ -7,7 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.necro.essentials.commands.main.NecroEssentialsCommand;
 import dev.necro.essentials.config.ConfigFile;
-import dev.necro.essentials.dependency.DependencyHelper;
+import dev.necro.essentials.dependencies.DependencyManager;
+import dev.necro.essentials.dependencies.deprecated.DependencyHelper;
 import dev.necro.essentials.listeners.trolls.TrollListeners;
 import dev.necro.essentials.listeners.*;
 import dev.necro.essentials.managers.ConfirmationManager;
@@ -42,6 +43,8 @@ public class NecroEssentials extends JavaPlugin {
     private ConfigFile mainConfig, slotsConfig, whitelistConfig;
 
     private NecroEssentialsCommand mainCommand;
+    @Getter
+    private DependencyManager dependencyManager;
     private VersionSupport versionSupport;
 
     private InvseeManager invseeManager;
@@ -56,8 +59,19 @@ public class NecroEssentials extends JavaPlugin {
         long millis = System.currentTimeMillis();
 
         instance = this;
-        this.loadDependencies();
-        this.loadRetardedDependencies();
+        // Deprecated dependency loading
+        //this.loadDependencies();
+        //this.loadRetardedDependencies();
+
+        // Initialize and load dependencies
+        this.dependencyManager = new DependencyManager(this.getLogger());
+
+        this.getLogger().info("Loading Cloud Framework dependencies...");
+        this.dependencyManager.loadCloudDependencies();
+
+        this.getLogger().info("Loading Adventure API dependencies...");
+        this.dependencyManager.loadAdventureDependencies();
+
         this.loadVersionSupport();
 
         this.loadConfigs();
@@ -85,7 +99,8 @@ public class NecroEssentials extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        // Cleanup is handled by classloader garbage collection
+        this.getLogger().info("NecroEssentials disabled");
     }
 
     private void registerListeners(Listener... listeners) {
