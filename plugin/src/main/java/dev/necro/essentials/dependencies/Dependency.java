@@ -58,7 +58,7 @@ public enum Dependency {
             "cloud.commandframework",
             "cloud-tasks",
             "1.8.4",
-            "a733115c40aa87174922c056dd4640a76d2b954ecdecbe5f1c6683b1781fc147",
+            "d309e42a8080fd9b62c2f5a0ad2e8f85e2597ef5613f42ce6d7dddb943042658",
             "SHA-256"
     ),
     CLOUD_MINECRAFT_EXTRAS(
