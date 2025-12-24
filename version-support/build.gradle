@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
     // compileOnly 'net.md-5:bungeecord-chat:1.12-20180712.114550-97'
     compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
 
